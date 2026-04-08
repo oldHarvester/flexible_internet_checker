@@ -72,6 +72,8 @@ class FlexibleInternetChecker {
   FlexibleInternetChecker({
     Connectivity? connectivity,
     http.Client? client,
+    this.refreshOnForeground = true,
+    this.pauseOnBackground = true,
     this.requiredAllRespond = false,
     this.statusUpdateThrottleDuration = Duration.zero,
     this.interval = FlexibleInternetCheckerConstants.DEFAULT_INTERVAL,
@@ -88,6 +90,7 @@ class FlexibleInternetChecker {
         : DEFAULT_ADDRESSES;
     _lifecycleListener = AppLifecycleListener(
       onResume: _onApplicationResume,
+      onPause: _onApplicationPaused,
     );
   }
 
@@ -110,6 +113,10 @@ class FlexibleInternetChecker {
   final Duration timeout;
 
   final Duration interval;
+
+  final bool refreshOnForeground;
+
+  final bool pauseOnBackground;
 
   final Duration statusUpdateThrottleDuration;
 
@@ -147,9 +154,18 @@ class FlexibleInternetChecker {
   }
 
   void _onApplicationResume() {
-    if (hasListeners) {
+    if (hasListeners && refreshOnForeground) {
       checkConnections();
       checkConnection();
+      if (pauseOnBackground) {
+        _infiniteTaskExecutor?.start();
+      }
+    }
+  }
+
+  void _onApplicationPaused() {
+    if (pauseOnBackground) {
+      _infiniteTaskExecutor?.stop();
     }
   }
 
