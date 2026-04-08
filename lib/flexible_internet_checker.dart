@@ -15,7 +15,6 @@ part 'flexible_internet_checker_constants.dart';
 enum InternetStatus {
   connected,
   disconnected,
-  idle,
   ;
 
   const InternetStatus();
@@ -124,7 +123,7 @@ class FlexibleInternetChecker {
 
   late final AppLifecycleListener _lifecycleListener;
 
-  InternetStatus _status = InternetStatus.idle;
+  InternetStatus? _status;
 
   ConnectionsList _connections = [];
 
@@ -132,7 +131,7 @@ class FlexibleInternetChecker {
 
   ConnectionsList get connections => [..._connections];
 
-  InternetStatus get lastStatus => _status;
+  InternetStatus? get lastStatus => _status;
 
   StreamSubscription<ConnectionsList>? _connectionsSub;
 
@@ -177,7 +176,7 @@ class FlexibleInternetChecker {
     _infiniteTaskExecutor = null;
     _hasConnection = null;
     _connections = [];
-    _status = InternetStatus.idle;
+    _status = null;
   }
 
   Iterable<Future<AddressCheckResult>> _createAddressCheckFutures(
