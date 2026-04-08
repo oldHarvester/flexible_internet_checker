@@ -60,8 +60,6 @@ checker.status.listen((InternetStatus status) {
       print('Internet is available');
     case InternetStatus.disconnected:
       print('No internet');
-    case InternetStatus.idle:
-      print('Not yet checked');
   }
 });
 
@@ -159,7 +157,7 @@ final checker = FlexibleInternetChecker(
 | Member | Type | Description |
 |---|---|---|
 | `status` | `Stream<InternetStatus>` | Broadcast stream of internet status updates. Monitoring starts on first listener and stops when all listeners cancel. |
-| `lastStatus` | `InternetStatus` | The most recently emitted status. |
+| `lastStatus` | `InternetStatus?` | The most recently emitted status, or `null` if no check has completed yet. |
 | `connections` | `ConnectionsList` | Last known list of network interfaces. |
 | `checkConnections()` | `Future<ConnectionsList>` | Manually query network interfaces. |
 | `checkConnection()` | `Future<bool>` | Manually perform an HTTP reachability check. |
@@ -173,7 +171,6 @@ final checker = FlexibleInternetChecker(
 |---|---|
 | `connected` | At least one address responded successfully |
 | `disconnected` | No address could be reached |
-| `idle` | Initial state before the first check completes |
 
 ### `AddressCheckOption`
 
