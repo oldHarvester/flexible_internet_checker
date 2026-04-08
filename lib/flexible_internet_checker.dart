@@ -68,7 +68,7 @@ extension ConnectionsListX on ConnectionsList {
 typedef ConnectionsList = List<ConnectivityResult>;
 
 class FlexibleInternetChecker {
-  FlexibleInternetChecker({
+  FlexibleInternetChecker.createInstance({
     Connectivity? connectivity,
     http.Client? client,
     this.refreshOnForeground = true,
@@ -92,6 +92,9 @@ class FlexibleInternetChecker {
       onPause: _onApplicationPaused,
     );
   }
+
+  static FlexibleInternetChecker instance =
+      FlexibleInternetChecker.createInstance();
 
   static final List<AddressCheckOption> DEFAULT_ADDRESSES =
       FlexibleInternetCheckerConstants.DEFAULT_ADDRESSES;

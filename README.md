@@ -51,7 +51,7 @@ dependencies:
 ```dart
 import 'package:flexible_internet_checker/flexible_internet_checker.dart';
 
-final checker = FlexibleInternetChecker();
+final checker = FlexibleInternetChecker.createInstance();
 
 // Listen to status stream — monitoring starts automatically on first listener
 checker.status.listen((InternetStatus status) {
@@ -78,7 +78,7 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<MyWidget> {
-  final FlexibleInternetChecker _checker = FlexibleInternetChecker();
+  final FlexibleInternetChecker _checker = FlexibleInternetChecker.createInstance();
 
   @override
   void dispose() {
@@ -114,7 +114,7 @@ final hasInternet = await checker.checkConnection();
 All parameters are optional — defaults work out of the box.
 
 ```dart
-final checker = FlexibleInternetChecker(
+final checker = FlexibleInternetChecker.createInstance(
   // How often to ping URLs in the background
   interval: const Duration(seconds: 5),
 

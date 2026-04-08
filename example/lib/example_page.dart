@@ -9,7 +9,8 @@ class ExamplePage extends StatefulWidget {
 }
 
 class _ExamplePageState extends State<ExamplePage> {
-  final FlexibleInternetChecker _checker = FlexibleInternetChecker();
+  final FlexibleInternetChecker _checker =
+      FlexibleInternetChecker.createInstance();
 
   @override
   void initState() {
