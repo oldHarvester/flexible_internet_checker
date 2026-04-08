@@ -10,6 +10,7 @@ A Flutter package for real-time internet connectivity monitoring. Unlike simple 
 - Periodic background checks at a configurable interval
 - Reacts instantly to network-state changes (Wi-Fi, mobile, etc.)
 - Throttle support to prevent status update flooding
+- Automatically pauses monitoring when the app goes to background and resumes on foreground
 - Fully configurable: custom URLs, timeouts, intervals, HTTP client
 
 ## Platform setup
@@ -128,6 +129,12 @@ final checker = FlexibleInternetChecker(
   // If true — ALL addresses must respond; if false — ANY one is enough
   requiredAllRespond: false,
 
+  // Refresh connections and recheck internet when app returns to foreground
+  refreshOnForeground: true,
+
+  // Pause the periodic checker when app goes to background, resume on foreground
+  pauseOnBackground: true,
+
   // Custom list of URLs to check
   addresses: [
     AddressCheckOption(uri: Uri.parse('https://one.one.one.one')),
@@ -156,6 +163,8 @@ final checker = FlexibleInternetChecker(
 | `connections` | `ConnectionsList` | Last known list of network interfaces. |
 | `checkConnections()` | `Future<ConnectionsList>` | Manually query network interfaces. |
 | `checkConnection()` | `Future<bool>` | Manually perform an HTTP reachability check. |
+| `refreshOnForeground` | `bool` | If `true` (default), re-checks connections and internet when the app returns to foreground. |
+| `pauseOnBackground` | `bool` | If `true` (default), stops the periodic checker when the app goes to background and restarts it on resume. |
 | `dispose()` | `void` | Cancel all subscriptions and close the stream. Call this when the checker is no longer needed. |
 
 ### `InternetStatus`
