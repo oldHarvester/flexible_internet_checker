@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_toolkit/utils/completers/flexible_completer.dart';
 import 'package:flutter_toolkit/utils/executors/infinite_task_executor.dart';
 import 'package:flutter_toolkit/utils/executors/throttle_executor.dart';
@@ -54,15 +55,15 @@ extension InternetStatusX on InternetStatus {
 
 extension ConnectionsListX on ConnectionsList {
   bool get hasNetworkAccess => any(
-    (element) => {
-      ConnectivityResult.ethernet,
-      ConnectivityResult.mobile,
-      ConnectivityResult.other,
-      ConnectivityResult.satellite,
-      ConnectivityResult.vpn,
-      ConnectivityResult.wifi,
-    }.contains(element),
-  );
+        (element) => {
+          ConnectivityResult.ethernet,
+          ConnectivityResult.mobile,
+          ConnectivityResult.other,
+          ConnectivityResult.satellite,
+          ConnectivityResult.vpn,
+          ConnectivityResult.wifi,
+        }.contains(element),
+      );
 }
 
 typedef ConnectionsList = List<ConnectivityResult>;
@@ -85,6 +86,9 @@ class FlexibleInternetChecker {
     this.addresses = addresses != null && addresses.isNotEmpty
         ? addresses
         : DEFAULT_ADDRESSES;
+    _lifecycleListener = AppLifecycleListener(
+      onResume: _onApplicationResume,
+    );
   }
 
   static final List<AddressCheckOption> DEFAULT_ADDRESSES =
@@ -111,13 +115,15 @@ class FlexibleInternetChecker {
 
   final ThrottleExecutor _throttler = ThrottleExecutor();
 
+  late final AppLifecycleListener _lifecycleListener;
+
   InternetStatus _status = InternetStatus.idle;
 
   ConnectionsList _connections = [];
 
   bool? _hasConnection;
 
-  ConnectionsList get connections => _connections;
+  ConnectionsList get connections => [..._connections];
 
   InternetStatus get lastStatus => _status;
 
@@ -138,6 +144,13 @@ class FlexibleInternetChecker {
       interval: interval,
       action: checkConnection,
     );
+  }
+
+  void _onApplicationResume() {
+    if (hasListeners) {
+      checkConnections();
+      checkConnection();
+    }
   }
 
   void _stopMonitoring() {
@@ -162,9 +175,8 @@ class FlexibleInternetChecker {
 
   Future<AddressCheckResult> _isHostReachable(AddressCheckOption option) async {
     try {
-      final http.Response response = await _httpClient
-          .head(option.uri)
-          .timeout(option.timeout ?? timeout);
+      final http.Response response =
+          await _httpClient.head(option.uri).timeout(option.timeout ?? timeout);
 
       final success = response.statusCode >= 100 && response.statusCode < 600;
 
@@ -249,9 +261,8 @@ class FlexibleInternetChecker {
     if (!hasListeners) return;
     final hasConnection = _hasConnection;
     if (hasConnection == null) return;
-    final newStatus = hasConnection
-        ? InternetStatus.connected
-        : InternetStatus.disconnected;
+    final newStatus =
+        hasConnection ? InternetStatus.connected : InternetStatus.disconnected;
     if (_status != newStatus) {
       _status = newStatus;
       _throttler.execute(
@@ -269,6 +280,7 @@ class FlexibleInternetChecker {
   }
 
   void dispose() {
+    _lifecycleListener.dispose();
     _infiniteTaskExecutor?.dispose();
     _statusController.sink.close();
   }
