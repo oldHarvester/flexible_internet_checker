@@ -103,10 +103,13 @@ class _MyWidgetState extends State<MyWidget> {
 
 ```dart
 // Check current network interfaces (Wi-Fi, mobile, etc.)
-final connections = await checker.checkConnections();
+final connections = await checker.fetchConnectivity();
 
 // Check actual internet access (makes real HTTP requests)
-final hasInternet = await checker.checkConnection();
+final hasInternet = await checker.hasConnection();
+
+// Get current internet status as InternetStatus enum
+final status = await checker.fetchStatus();
 ```
 
 ## Configuration
@@ -159,8 +162,9 @@ final checker = FlexibleInternetChecker.createInstance(
 | `status` | `Stream<InternetStatus>` | Broadcast stream of internet status updates. Monitoring starts on first listener and stops when all listeners cancel. |
 | `lastStatus` | `InternetStatus?` | The most recently emitted status, or `null` if no check has completed yet. |
 | `connections` | `ConnectionsList` | Last known list of network interfaces. |
-| `checkConnections()` | `Future<ConnectionsList>` | Manually query network interfaces. |
-| `checkConnection()` | `Future<bool>` | Manually perform an HTTP reachability check. |
+| `fetchConnectivity()` | `Future<ConnectionsList>` | Manually query network interfaces. |
+| `hasConnection()` | `Future<bool>` | Manually perform an HTTP reachability check. |
+| `fetchStatus()` | `Future<InternetStatus>` | Manually check internet and return status as enum. |
 | `refreshOnForeground` | `bool` | If `true` (default), re-checks connections and internet when the app returns to foreground. |
 | `pauseOnBackground` | `bool` | If `true` (default), stops the periodic checker when the app goes to background and restarts it on resume. |
 | `dispose()` | `void` | Cancel all subscriptions and close the stream. Call this when the checker is no longer needed. |

@@ -145,20 +145,20 @@ class FlexibleInternetChecker {
   InfiniteTaskExecutor? _infiniteTaskExecutor;
 
   Future<void> _startMonitoring() async {
-    checkConnections();
+    fetchConnectivity();
     _connectionsSub ??= connectivity.onConnectivityChanged.listen(
       _connectionsListener,
     );
     _infiniteTaskExecutor = InfiniteTaskExecutor<bool>(
       interval: interval,
-      action: checkConnection,
+      action: hasConnection,
     );
   }
 
   void _onApplicationResume() {
     if (hasListeners && refreshOnForeground) {
-      checkConnections();
-      checkConnection();
+      fetchConnectivity();
+      hasConnection();
       if (pauseOnBackground) {
         _infiniteTaskExecutor?.start();
       }
@@ -223,7 +223,7 @@ class FlexibleInternetChecker {
     return result;
   }
 
-  Future<ConnectionsList> checkConnections() async {
+  Future<ConnectionsList> fetchConnectivity() async {
     final oldCompleter = _connectionsCompleter;
     if (oldCompleter != null && oldCompleter.isCompleted) {
       return oldCompleter.future;
@@ -242,7 +242,15 @@ class FlexibleInternetChecker {
     return completer.future;
   }
 
-  Future<bool> checkConnection() async {
+  Future<InternetStatus> fetchStatus() {
+    return hasConnection().then(
+      (value) {
+        return value ? InternetStatus.connected : InternetStatus.disconnected;
+      },
+    );
+  }
+
+  Future<bool> hasConnection() async {
     final oldCompleter = _connectionCompleter;
     if (oldCompleter != null && !oldCompleter.isCompleted) {
       return oldCompleter.future;
@@ -270,7 +278,7 @@ class FlexibleInternetChecker {
     final previous = _connections;
     _connections = connections;
     if (previous.hasNetworkAccess != connections.hasNetworkAccess) {
-      checkConnection();
+      hasConnection();
     }
     _updateStatus();
   }
